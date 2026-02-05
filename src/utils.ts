@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path, {
   basename,
+  dirname,
   extname,
   join,
   normalize,
@@ -628,6 +629,20 @@ export function deleteGiteaReleaseAsset(
       asset_id: assetId,
     },
   );
+}
+
+/// Compress a file to .zip format
+export async function zipFile(filePath: string): Promise<string> {
+  const zipPath = `${filePath}.zip`;
+  console.log(`Compressing ${basename(filePath)} to ${basename(zipPath)}`);
+
+  await execCommand(
+    'zip',
+    ['-j', zipPath, filePath],
+    {},
+  );
+
+  return zipPath;
 }
 
 // TODO: Properly resolve the eslint issues in this file.

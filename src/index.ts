@@ -15,7 +15,7 @@ import {
 import { uploadAssets as uploadReleaseAssets } from './upload-release-assets';
 import { uploadVersionJSON } from './upload-version-json';
 import { uploadWorkflowArtifacts } from './upload-workflow-artifacts';
-import { execCommand, getInfo, getTargetInfo, retry } from './utils';
+import { execCommand, getInfo, getTargetInfo, retry, zipFile } from './utils';
 
 import type { Artifact } from './types';
 
@@ -94,6 +94,25 @@ async function run(): Promise<void> {
         }
         i++;
       }
+    }
+
+    // Compress all artifacts to .zip format
+    console.log('Compressing artifacts to .zip format...');
+    for (const artifact of artifacts) {
+      // Skip files that are already compressed or are signature files
+      if (
+        artifact.path.endsWith('.zip') ||
+        artifact.path.endsWith('.tar.gz') ||
+        artifact.path.endsWith('.sig') ||
+        !existsSync(artifact.path)
+      ) {
+        continue;
+      }
+
+      // Compress the file
+      const zipPath = await zipFile(artifact.path);
+      artifact.path = zipPath;
+      artifact.ext += '.zip';
     }
 
     // If releaseId is set we'll use this to upload the assets to.
