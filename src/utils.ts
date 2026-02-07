@@ -636,11 +636,15 @@ export async function zipFile(filePath: string): Promise<string> {
   const zipPath = `${filePath}.zip`;
   console.log(`Compressing ${basename(filePath)} to ${basename(zipPath)}`);
 
-  await execCommand(
-    'zip',
-    ['-j', zipPath, filePath],
-    {},
-  );
+  if (process.platform === 'win32') {
+    await execCommand(
+      'tar',
+      ['-a', '-cf', basename(zipPath), basename(filePath)],
+      { cwd: dirname(filePath) },
+    );
+  } else {
+    await execCommand('zip', ['-j', zipPath, filePath], {});
+  }
 
   return zipPath;
 }

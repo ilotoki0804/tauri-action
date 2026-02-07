@@ -125185,7 +125185,12 @@ function deleteGiteaReleaseAsset(github, releaseId, assetId) {
 async function zipFile(filePath) {
     const zipPath = `${filePath}.zip`;
     console.log(`Compressing ${(0,external_node_path_.basename)(filePath)} to ${(0,external_node_path_.basename)(zipPath)}`);
-    await execCommand('zip', ['-j', zipPath, filePath], {});
+    if (process.platform === 'win32') {
+        await execCommand('tar', ['-a', '-cf', (0,external_node_path_.basename)(zipPath), (0,external_node_path_.basename)(filePath)], { cwd: (0,external_node_path_.dirname)(filePath) });
+    }
+    else {
+        await execCommand('zip', ['-j', zipPath, filePath], {});
+    }
     return zipPath;
 }
 // TODO: Properly resolve the eslint issues in this file.
